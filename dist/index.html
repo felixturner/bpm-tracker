@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>BPM TRACKER</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+    <link href="css/styles.css" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body>
+    <canvas id="audio-debug" class="hidden" width="276" height="100"></canvas>
+
+    <div id="viz">
+      <div id="webgl" class="hidden"></div>
+    </div>
+    <div id="cog-btn" class="btn"></div>
+    <div id="reset-btn" class="btn"></div>
+
+    <div id="title">BPM TRACKER</div>
+
+    <div class="debug hidden">
+      <div id="bpm-debug">DEBUG</div>
+    </div>
+    <div class="debug-viz">
+      <div id="aa-viz-holder"></div>
+      <div id="bpm-viz-holder"></div>
+    </div>
+
+    <div class="main-wrapper">
+      <div class="stepper-wrapper center-content hidden-at-start">
+        <div class="stepper on" id="stepper-left"></div>
+        <div class="stepper" id="stepper-right"></div>
+      </div>
+      <div class="bpm-wrapper container">
+        <div id="bpm-text" class="centered hidden"></div>
+        <div class="bpm-circ">
+          <div id="pulser" class="bpm-circ"></div>
+        </div>
+
+        <div id="start-btn" class="btn centered"></div>
+        <div id="sine-wave" class="centered hidden-at-start pointer-none"></div>
+        <div id="sweeper" class="centered hidden-at-start pointer-none"></div>
+      </div>
+      <div class="conf-wrapper center-content">
+        <div class="conf-meter hidden-at-start">
+          <div id="conf-meter-inner"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

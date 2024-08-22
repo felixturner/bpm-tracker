@@ -1,0 +1,8 @@
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+Thumbs.db
+node_modules*
+**/*.zip
+dist/app.js
