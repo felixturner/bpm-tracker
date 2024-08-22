@@ -2,7 +2,7 @@
 
   Audio Analyser 
   
-  can choose between linear or logrithmic scale
+  can choose between linear or logarithmic scale
 
   publishes:
     freqData - length: fftSize/2. range: 0 - 255

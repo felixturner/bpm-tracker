@@ -14,7 +14,7 @@ export class Wave {
     domElement.appendChild(this.canvas);
     this.ctx = this.canvas.getContext('2d');
     this.ctx.lineCap = 'round';
-    this.ctx.lineWidth = 50;
+    this.ctx.lineWidth = 55;
     this.ctx.strokeStyle = '#fff';
     this.waveLength = Math.PI * 3;
   }

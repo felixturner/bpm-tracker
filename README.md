@@ -2,6 +2,8 @@
 
 Live BPM detection and visualization via WebAudio API
 
+Note audio playing in other chrome tabs will not be picked up by WebAudioAPI
+
 ## Build
 
 ### Build Dev

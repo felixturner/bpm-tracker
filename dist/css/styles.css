@@ -28,8 +28,6 @@ html {
   max-height: 800px;
   height: auto;
   width: 100vmin;
-  xoutline: pink solid 2px;
-  xoutline-offset: -1px;
   aspect-ratio: var(--inner-aspect);
   background-size: 100% 100%;
 }
@@ -38,7 +36,6 @@ html {
   .main-wrapper {
     height: 100vh;
     width: auto;
-    xoutline: yellow solid 2px;
   }
 }
 
@@ -65,7 +62,7 @@ html {
 
 #pulser {
   position: absolute;
-  outline: 6px solid #fff;
+  outline: 4px solid #fff;
   opacity: 0;
 }
 
@@ -85,7 +82,6 @@ html {
 }
 #bpm-text {
   font-size: 32cqw;
-  xline-height: 160px;
   font-weight: 900;
   align-items: center;
   letter-spacing: 0.07em;
@@ -146,7 +142,7 @@ html {
   width: 0%;
   height: 100%;
   background-color: #fff;
-  transition: width 0.1s ease-out;
+  transition: width 0.2s ease-out;
 }
 
 .btn {
@@ -180,13 +176,6 @@ html {
   left: 0;
   margin: 20px;
 }
-/* .reset-wrapper {
-  width: 100%;
-  height: 100px;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-} */
 
 .absolute {
   position: absolute;
@@ -241,10 +230,6 @@ html {
 
 #bpm-viz-holder {
   position: absolute;
-  /* left: 0;
-  top: 50vh;
-  
-  opacity: 0.5; */
   width: 50vw;
   height: 100px;
   z-index: -1;
@@ -262,25 +247,6 @@ html {
   width: 100%;
   z-index: -3;
   top: 0;
-  left: 0;
-  position: absolute;
-}
-
-#webgl {
-  position: absolute;
-  background-color: #000;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-}
-
-#webgl canvas {
-  width: 100%;
-  height: 100%;
-}
-
-#audio-debug {
-  bottom: 0;
   left: 0;
   position: absolute;
 }
