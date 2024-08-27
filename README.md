@@ -2,7 +2,13 @@
 
 Live BPM detection and visualization via WebAudio API
 
+[Live Demo](https://airtight.cc/demos/bpm-tracker/)
+
 Note audio playing in other chrome tabs will not be picked up by WebAudioAPI
+
+##Screenshot
+
+![Alt text](/screenshot.png?raw=true 'Optional Title')
 
 ## Build
 
