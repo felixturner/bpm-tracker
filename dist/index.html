@@ -11,39 +11,69 @@
   </head>
 
   <body>
-    <div id="cog-btn" class="btn"></div>
-    <div id="reset-btn" class="btn"></div>
-
-    <div id="title">BPM TRACKER</div>
-
-    <div class="debug hidden">
-      <div id="bpm-debug">DEBUG</div>
+    <div id="info">
+      <div id="info-content" class="centered">
+        <div id="info-title">BPM TRACKER</div>
+        <div id="info-close" class="btn"></div>
+        <p>Realtime BPM detection and visualization via the Web Audio API.</p>
+        <p>
+          Works best for 4/4 music with a strong kick drum. The observed BPM
+          range is 85 - 170 BPM. BPMs out of this range will be detected at half
+          time or double time. BPM is detected by observing the 100 - 250 Mhz
+          frequency range, where the kick drum is prevalent.
+        </p>
+        <p>
+          Note: audio playing in other Chrome tabs will not be picked up by Web
+          Audio API.
+        </p>
+        <p>
+          Source Code available on
+          <a href="https://github.com/felixturner/bpm-tracker/" target="_blank"
+            >Github</a
+          >
+        </p>
+        <p>
+          Built by
+          <a href="https://www.airtight.cc/" target="_blank"
+            >Airtight Interactive</a
+          >
+          /
+          <a href="https://x.com/felixturner" target="_blank">@felixturner</a>
+        </p>
+      </div>
     </div>
-    <div class="debug-viz">
+    <div id="header">
+      <div id="reset-btn" class="btn hidden-at-start"></div>
+      <div id="title" class="centered">BPM TRACKER</div>
+      <div id="info-btn" class="btn"></div>
+    </div>
+
+    <div class="main-outer-wrapper container">
+      <div class="main-wrapper">
+        <div class="stepper-wrapper center-content hidden-at-start">
+          <div class="stepper on" id="stepper-left"></div>
+          <div class="stepper" id="stepper-right"></div>
+        </div>
+        <div class="bpm-wrapper container">
+          <div id="bpm-text" class="centered hidden"></div>
+          <div class="bpm-circ centered"></div>
+          <div id="pulser" class="bpm-circ centered"></div>
+
+          <div id="start-btn" class="btn centered"></div>
+          <div id="sine-wave" class="centered hidden pointer-none"></div>
+          <div id="sweeper" class="centered hidden pointer-none"></div>
+        </div>
+        <div class="conf-wrapper center-content">
+          <div class="conf-meter hidden-at-start">
+            <div id="conf-meter-inner"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="viz" class="hidden-at-start">
       <div id="aa-viz-holder"></div>
       <div id="bpm-viz-holder"></div>
-    </div>
-
-    <div class="main-wrapper">
-      <div class="stepper-wrapper center-content hidden-at-start">
-        <div class="stepper on" id="stepper-left"></div>
-        <div class="stepper" id="stepper-right"></div>
-      </div>
-      <div class="bpm-wrapper container">
-        <div id="bpm-text" class="centered hidden"></div>
-        <div class="bpm-circ">
-          <div id="pulser" class="bpm-circ"></div>
-        </div>
-
-        <div id="start-btn" class="btn centered"></div>
-        <div id="sine-wave" class="centered hidden-at-start pointer-none"></div>
-        <div id="sweeper" class="centered hidden-at-start pointer-none"></div>
-      </div>
-      <div class="conf-wrapper center-content">
-        <div class="conf-meter hidden-at-start">
-          <div id="conf-meter-inner"></div>
-        </div>
-      </div>
     </div>
 
     <script src="app.js"></script>

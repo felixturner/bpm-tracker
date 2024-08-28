@@ -47,22 +47,15 @@ export class AudioAnalyserViz {
 
   update() {
     requestAnimationFrame(this.update);
-    // console.log(this.audioAnalyser.getVolume());
+
+    this.ctx.globalCompositeOperation = 'source-over';
 
     //clear
-    //this.audioAnalyser.bands.forEach((band, i) => {
-
-    // this.ctx.fillStyle = band.onBeat ? '#FFF' : '#111';
-    this.ctx.fillStyle = '#000';
     this.ctx.fillRect(0, 0, displayDims.x, displayDims.y);
-
-    // this.drawFreqLine(100, '100', this.isLog);
-    // this.drawFreqLine(1000, '1K', this.isLog);
-    // this.drawFreqLine(10000, '10K', this.isLog);
-
-    this.ctx.strokeStyle = '#FFF';
+    this.ctx.clearRect(0, 0, displayDims.x, displayDims.y);
 
     //DRAW FREQ
+    this.ctx.strokeStyle = '#FFF';
     let freqData = this.isLog
       ? this.audioAnalyser.logData
       : this.audioAnalyser.freqData;
@@ -80,13 +73,6 @@ export class AudioAnalyserViz {
     this.ctx.lineTo(this.chartWidth, displayDims.y);
     this.ctx.lineTo(0, displayDims.y);
     this.ctx.fill();
-    //this.ctx.stroke();
-
-    //vert divider
-    // this.ctx.beginPath();
-    // this.ctx.moveTo(this.chartWidth, 0);
-    // this.ctx.lineTo(this.chartWidth, displayDims.y);
-    // this.ctx.stroke();
 
     this.ctx.fillStyle = this.freqGradient;
 
@@ -121,13 +107,15 @@ export class AudioAnalyserViz {
   }
 
   drawBPMRange() {
-    //white
-
-    this.drawFreqLine(this.bpmRange.minFreq);
-    this.drawFreqLine(this.bpmRange.maxFreq);
-
-    //name
-    // this.ctx.fillStyle = 'white';
-    // this.ctx.fillText(this.bpmRange.name, startX + 5, displayDims.y - 15);
+    this.ctx.globalCompositeOperation = 'screen';
+    this.ctx.fillStyle = '#333';
+    this.ctx.fillRect(
+      this.audioAnalyser.getFreqLogIndex(this.bpmRange.minFreq) *
+        this.chartWidth,
+      0,
+      this.audioAnalyser.getFreqLogIndex(this.bpmRange.maxFreq) *
+        this.chartWidth,
+      displayDims.y
+    );
   }
 }

@@ -1,98 +1,34 @@
-import { GUI } from 'lil-gui';
-import { GUIOptions } from './lib/GUIOptions.js';
+import { gsap } from 'gsap';
 import { $, $$ } from './lib/QuerySelector.js';
 import { AudioAnalyser } from './AudioAnalyser.js';
 import { BPMDetector } from './BPMDetector.js';
 import { BPMDetectorViz } from './BPMDetectorViz.js';
 import { AudioPlayer } from './AudioPlayer.js';
 import { AudioAnalyserViz } from './AudioAnalyserViz.js';
-
-import { gsap } from 'gsap';
-
 import { Wave } from './Wave.js';
 
-let stats;
 let audioAnalyser;
 let audioAnalyserViz;
 let audioPlayer;
 let bpmDetector;
 let bpmDetectorViz;
 let waveViz;
-
 let lastBeatIsLeft = false;
-let altIsLeft = 0;
-
-//GUI
-let gui = new GUI();
-
-let guiParams = {
-  showMeter: { value: showMeter, gui: true },
-  showDebug: { value: showDebug, gui: true },
-  minBPM: {
-    type: 'f',
-    value: 85,
-    min: 50,
-    max: 200,
-    gui: true,
-  },
-  maxBPM: {
-    type: 'f',
-    value: 170,
-    min: 50,
-    max: 200,
-    gui: true,
-  },
-  smoothing: {
-    type: 'f',
-    value: 0,
-    min: 0,
-    max: 1,
-    step: 0.001,
-    gui: true,
-  },
-
-  minFreq: {
-    type: 'f',
-    value: 100,
-    min: 0,
-    max: 10000,
-    gui: true,
-  },
-  maxFreq: {
-    type: 'f',
-    value: 250,
-    min: 0,
-    max: 10000,
-    gui: true,
-  },
-  peakVolThreshold: {
-    type: 'f',
-    value: 0.3,
-    min: 0,
-    max: 1,
-    step: 0.001,
-    gui: true,
-  },
-};
-const guiOptions = new GUIOptions(guiParams, gui, null, onParamsChange, true);
-let lastUseMic;
 
 function init() {
-  //stats
   $('#start-btn').onclick = start;
   $('#reset-btn').onclick = resetBPM;
+  $('#info-btn').onclick = showInfo;
   waveViz = new Wave($('#sine-wave'));
 }
+function showInfo() {
+  toggleVisibility($('#info'));
+  $('#info-btn').classList.toggle('open');
+}
+
 function toggleVisibility(elem) {
   elem.style.visibility =
     elem.style.visibility === 'visible' ? 'hidden' : 'visible';
-}
-
-function showDebug() {
-  toggleVisibility($('.debug'));
-}
-function showMeter() {
-  toggleVisibility($('.debug-viz'));
 }
 
 async function start() {
@@ -124,12 +60,6 @@ function rationalBump(x, k) {
 
 function update() {
   requestAnimationFrame(update);
-  waveViz.update();
-
-  $('#bpm-debug').innerHTML = `${bpmDetector.currentBPM} CURRENT BPM <br>
-  ${bpmDetector.currentConf.toFixed(2)} CURRENT CONFIDENCE <br>
-  ${bpmDetector.intervalsCount} INTERVAL COUNT <br>
-  ${bpmDetector.peakCount} PEAK COUNT`;
 
   $('#conf-meter-inner').style.width = `${bpmDetector.historicalConf * 100}%`;
 
@@ -139,6 +69,7 @@ function update() {
     $('#sweeper').style.visibility = 'hidden';
     $('#pulser').style.visibility = 'hidden';
     $('#conf-meter-inner').style.backgroundColor = '#aaa';
+    waveViz.update();
     return;
   }
 
@@ -146,30 +77,28 @@ function update() {
   $('#bpm-text').innerHTML = bpmDetector.detectedBPM;
   $('#sweeper').style.visibility = 'visible';
   $('#pulser').style.visibility = 'visible';
-  gsap.set('#sweeper', { rotation: bpmDetector.barTime * 360 });
+  gsap.set('#sweeper', { rotation: bpmDetector.getBeatTime(4) * 360 });
   $('#sine-wave').style.visibility = 'hidden';
 
-  const val = rationalBump(bpmDetector.beatTime - 0.5, 260);
+  //animate BPM text scale
+  const val = rationalBump(bpmDetector.getBeatTime() - 0.5, 260);
   gsap.set('#bpm-text', { scale: 1 + val * 0.15 });
   $('#conf-meter-inner').style.backgroundColor = '#FFF';
 
-  //stepper
-  let beatIsLeft = bpmDetector.beatTime < 0.5;
-  $('#stepper-left').classList.toggle('on', beatIsLeft);
-  $('#stepper-right').classList.toggle('on', !beatIsLeft);
+  //animate stepper
+  let beatIsLeft = bpmDetector.getBeatTime() < 0.5;
 
-  //animate pulse
   if (beatIsLeft !== lastBeatIsLeft) {
-    //console.log('PULSE ', performance.now(), bpmMS);
     lastBeatIsLeft = beatIsLeft;
-    altIsLeft++;
-    altIsLeft = altIsLeft % 2;
-    if (!altIsLeft) {
+    $('#stepper-left').classList.toggle('on', beatIsLeft);
+    $('#stepper-right').classList.toggle('on', !beatIsLeft);
+    //animate pulse
+    if (!beatIsLeft) {
       gsap.fromTo(
         '#pulser',
         { scale: 1, opacity: 1 },
         {
-          scale: 1.8,
+          scale: 1.7,
           opacity: 0,
           ease: 'expo.out',
           duration: (bpmDetector.bpmMS / 1000) * 1,
@@ -177,20 +106,6 @@ function update() {
       );
     }
   }
-}
-
-function onParamsChange() {
-  audioAnalyser.analyser.smoothingTimeConstant = guiParams.smoothing.value;
-  bpmDetector.minFreq = guiParams.minFreq.value;
-  bpmDetector.maxFreq = guiParams.maxFreq.value;
-  bpmDetector.peakVolThreshold = guiParams.peakVolThreshold.value;
-  bpmDetector.minBPM = guiParams.minBPM.value;
-  bpmDetector.maxBPM = guiParams.maxBPM.value;
-  audioAnalyserViz.setBPMRange(
-    bpmDetector.minFreq,
-    bpmDetector.maxFreq,
-    bpmDetector.name
-  );
 }
 
 function resetBPM() {

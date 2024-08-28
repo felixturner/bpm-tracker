@@ -1,22 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap');
 
-*,
-*:before,
-*:after {
+* {
   xoutline: 1px solid red;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
-  margin: 0px;
+  margin: 0;
   background-color: #111;
-  color: #ddd;
+  color: #aaa;
   width: 100%;
-  height: 100%;
+  height: 100dvh;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
   font-family: 'Inter', sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
@@ -24,17 +20,61 @@ html {
   --inner-aspect: 685/966;
 }
 
+body {
+  height: 100dvh;
+  width: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#title {
+  text-align: center;
+  font-size: 22px;
+  letter-spacing: 2px;
+  width: 200px;
+}
+
+#header {
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 85px;
+  position: relative;
+}
+
+#viz {
+  left: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100px;
+  border-top: 1px solid #333;
+}
+
+.container {
+  container-type: size; /* defines the element as a container */
+}
+
+.main-outer-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  width: 100vw;
+}
+
 .main-wrapper {
   max-height: 800px;
   height: auto;
-  width: 100vmin;
+  width: 100cqmin;
   aspect-ratio: var(--inner-aspect);
   background-size: 100% 100%;
 }
 
 @media (min-aspect-ratio: 685/966) {
   .main-wrapper {
-    height: 100vh;
+    height: 100cqh;
     width: auto;
   }
 }
@@ -58,12 +98,19 @@ html {
   aspect-ratio: 1;
   height: 100%;
   margin: auto;
+  background-color: #111;
+  position: absolute;
 }
 
 #pulser {
   position: absolute;
-  outline: 4px solid #fff;
+  xoutline: 4px solid #fff;
   opacity: 0;
+  background-image: url('../res/pulser.svg');
+  background-size: 100% 100%;
+  xoutline: none;
+  xbackground-color: #f00;
+  z-index: -1;
 }
 
 #sine-wave,
@@ -75,11 +122,9 @@ html {
 #sweeper {
   background-image: url('../res/sweeper.png');
   background-size: 100% 100%;
+  opacity: 90%;
 }
 
-.container {
-  container-type: inline-size; /* defines the element as a container */
-}
 #bpm-text {
   font-size: 32cqw;
   font-weight: 900;
@@ -89,6 +134,7 @@ html {
   user-select: none;
   text-align: center;
   z-index: 2;
+  width: 100%;
 }
 
 .center-content {
@@ -131,8 +177,8 @@ html {
 
 .conf-meter {
   width: auto;
-  aspect-ratio: 10/1;
-  height: 15%;
+  aspect-ratio: 9/1;
+  height: 17%;
   background-color: #555;
   border-radius: 8px;
   overflow: hidden;
@@ -148,29 +194,37 @@ html {
 .btn {
   background-size: 100% 100%;
   cursor: pointer;
-  opacity: 90%;
+  opacity: 0.7;
+  z-index: 4;
 }
 
 #start-btn {
   background-image: url('../res/start.svg');
   height: 180px;
   width: 180px;
+  margin-left: 15px; /* optical center */
+  opacity: 1;
 }
 
-#cog-btn {
-  background-image: url('../res/cog.svg');
+#info-btn {
+  background-image: url('../res/info.svg');
   position: absolute;
   top: 0;
   right: 0;
-  height: 60px;
-  width: 60px;
+  height: 45px;
+  width: 45px;
   margin: 20px;
+  z-index: 5;
+}
+
+#info-btn.open {
+  background-image: url('../res/close.svg');
 }
 
 #reset-btn {
   background-image: url('../res/reset.svg');
-  height: 60px;
-  width: 60px;
+  height: 45px;
+  width: 45px;
   position: absolute;
   top: 0;
   left: 0;
@@ -184,43 +238,17 @@ html {
   height: 100%;
 }
 
-#title {
-  width: 100%;
-  text-align: center;
-  font-size: 20px;
-  letter-spacing: 2px;
-  color: #999;
-  position: absolute;
-  top: 20px;
-  left: 0;
-}
-
 .hidden,
 .hidden-at-start {
   visibility: hidden;
 }
 
-.debug {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 300px;
-  z-index: 2;
-  background-color: #333;
-}
-
-.debug-viz {
-  z-index: -1;
-}
-
 #aa-viz-holder {
   position: absolute;
   left: 0;
-  bottom: 0;
   width: 50vw;
   height: 100px;
-  xopacity: 0.5;
-  z-index: -1;
+  border-right: 1px solid #333;
 }
 
 #aa-viz-holder canvas {
@@ -233,7 +261,6 @@ html {
   width: 50vw;
   height: 100px;
   z-index: -1;
-  bottom: 0;
   right: 0;
 }
 
@@ -242,11 +269,36 @@ html {
   height: 100%;
 }
 
-#viz {
-  height: 100%;
-  width: 100%;
-  z-index: -3;
+#info {
+  position: absolute;
   top: 0;
   left: 0;
-  position: absolute;
+  width: 100vw;
+  height: 100dvh;
+  background-color: #111;
+  visibility: hidden;
+  z-index: 5;
+  padding: 20px;
+}
+
+#info-title {
+  color: #eee;
+  font-size: 30px;
+  text-align: center;
+  font-weight: 500;
+  height: 45px;
+  letter-spacing: 3px;
+}
+#info-content {
+  padding: 30px;
+  width: 100%;
+  max-width: 600px;
+  overflow: auto;
+  font-size: 20px;
+  letter-spacing: 1px;
+  line-height: 125%;
+}
+
+a {
+  color: #eee;
 }

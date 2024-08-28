@@ -22,7 +22,7 @@ export class AudioAnalyser {
     this.analyser.fftSize = fftSize;
     // this.analyser.minDecibels = -120; //default: -100
     // this.analyser.maxDecibels = 0; //default: -30
-    this.analyser.smoothingTimeConstant = 0.8; //default: 0.8
+    this.analyser.smoothingTimeConstant = 0; //faster response
 
     //The frequencies are spread linearly from 0 to 1/2 of the sample rate.
     //For example, for 48000 sample rate, the last item of the array will represent the decibel value for 24000 Hz.

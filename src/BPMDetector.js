@@ -1,34 +1,44 @@
 export class BPMDetector {
-  constructor(audioAnalyser, minFreq = 20, maxFreq = 20000, gain = 1) {
+  constructor(audioAnalyser, options = {}) {
+    const {
+      minFreq = 100,
+      maxFreq = 250,
+      gain = 1,
+      minBPM = 85,
+      maxBPM = 170,
+      peakVolThreshold = 0.3,
+      peakWindowSize = 15,
+      peakWindowCount = 40,
+      volIntervalMS = 20,
+      bpmIntervalMS = 200,
+      bpmHistoryLength = 20,
+      historicalMinConf = 0.3,
+    } = options;
+
+    // OPTIONS
+    this.minFreq = minFreq; //min freq to look for kick drum
+    this.maxFreq = maxFreq; //max freq to look for kick drum
+    this.gain = gain; //volume boost factor
+    this.minBPM = minBPM;
+    this.maxBPM = maxBPM;
+    this.peakVolThreshold = peakVolThreshold; //ignore peaks below this volume
+    this.peakWindowSize = peakWindowSize; //number of volume records to check for a peak. (15 * 20ms = 300ms = 200 max BPM)
+    this.peakWindowCount = peakWindowCount; //halved (only looks at loudest 1/2 of peaks)
+    this.volIntervalMS = volIntervalMS; //how often to get volume (20MS - about 60fps)
+    this.bpmIntervalMS = bpmIntervalMS; //how often to calculate BPM
+    this.bpmHistoryLength = bpmHistoryLength; //duration = bpmHistoryLength * bpmIntervalMS (4s)
+    this.historicalMinConf = historicalMinConf; //min historical confidence to show a result
+
     this.audioAnalyser = audioAnalyser;
-    this.volume = 0;
-    this.minFreq = minFreq;
-    this.maxFreq = maxFreq;
     this.maxRangeFreq = audioAnalyser.maxRangeFreq;
-    this.gain = gain;
-
-    // ARBITRARY VALUES
-    this.maxBPM = 160;
-    this.minBPM = 80;
-    this.peakVolThreshold = 0.5; //ignore peaks below this volume
-    this.peakWindowSize = 15; //number of volume records to check for a peak. (15 * 20 = 300ms = 200 max BPM)
-    this.peakWindowCount = 40; //halved (only look at loudest 1/2 of peaks)
     this.volHistoryLen = this.peakWindowSize * this.peakWindowCount;
-    this.bpmIntervalMS = 200; //do more often?
-    this.volIntervalMS = 20; //about 60fps
-    this.bpmHistoryLength = 20; //duration = bpmHistoryLength * bpmIntervalMS (4s)
-    this.historicalMinConf = 0.3; //min historical confidence to show a result
-
     this.intervalsCount = 0;
     this.peakCount = 0;
-    this.currentConf = 0;
     this.historicalConf = 0;
     this.isConfident = false;
     this.bpmMS = 10000;
 
     this.resetBPM();
-
-    console.log('new BPM Detector', this.minFreq, this.maxFreq);
 
     setInterval(() => {
       this.getVolume();
@@ -48,27 +58,26 @@ export class BPMDetector {
   }
 
   getVolume() {
-    //write current volume into volHistory as 0-1
-    let time = performance.now();
-    this.startIndex = Math.round(
+    //write current volume in the frequency range into volHistory as 0-1
+    const time = performance.now();
+    const startIndex = Math.round(
       (this.minFreq / this.audioAnalyser.maxRangeFreq) *
         (this.audioAnalyser.binCount - 1)
     );
-    this.endIndex = Math.round(
+    const endIndex = Math.round(
       (this.maxFreq / this.audioAnalyser.maxRangeFreq) *
         (this.audioAnalyser.binCount - 1)
     );
     //average volume in range
-    let total = 0;
-    for (let i = this.startIndex; i <= this.endIndex; i++) {
-      total += this.audioAnalyser.freqData[i];
-    }
-    this.volume = total / (this.endIndex - this.startIndex);
-    this.volume *= this.gain;
-    this.volume /= 255; //convert to 0-1 range
+    let total = this.audioAnalyser.freqData
+      .slice(startIndex, endIndex + 1)
+      .reduce((acc, value) => acc + value, 0);
+    let volume = total / (endIndex - startIndex);
+    volume *= this.gain;
+    volume /= 255; //convert to 0-1 range
 
-    //put new volume on front of volumeHistory
-    this.volHistory.unshift({ volume: this.volume, time: time });
+    //put new volume on front of volHistory
+    this.volHistory.unshift({ volume: volume, time: time });
     this.volHistory.pop();
   }
 
@@ -127,7 +136,6 @@ export class BPMDetector {
         index + i < this.peakCount && i < maxPeaksBetweenIntervals;
         i++
       ) {
-        //for (let i = 1; index + i < this.peakCount; i++) {
         if (peak.time === 0) continue;
         let group = {
           bpm: msToBPM(this.peaks[index + i].time - peak.time),
@@ -169,8 +177,6 @@ export class BPMDetector {
 
     // Get the most common interval
     this.topInterval = intervals[0];
-
-    this.currentConf = this.topInterval.count / totalCount;
     const currentBPM = this.topInterval.bpm;
 
     // Update BPM history
@@ -191,7 +197,6 @@ export class BPMDetector {
   }
 
   resetBPMValues() {
-    this.currentConf = 0;
     this.historicalConf = 0;
     this.isConfident = false;
     this.bpmMS = 100000;
@@ -206,13 +211,11 @@ export class BPMDetector {
     this.bpmHistory.shift();
   }
 
-  //get 0-1 time within a  beats
-  get beatTime() {
-    return (performance.now() % this.bpmMS) / this.bpmMS;
-  }
-  //get 0-1 time within 4 beats
-  get barTime() {
-    return (performance.now() % (this.bpmMS * 4)) / (this.bpmMS * 4);
+  //get 0 - 1 time within a number of beats
+  getBeatTime(numBeats = 1) {
+    return (
+      (performance.now() % (this.bpmMS * numBeats)) / (this.bpmMS * numBeats)
+    );
   }
 }
 
