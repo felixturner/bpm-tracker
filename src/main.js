@@ -1,61 +1,42 @@
 import { gsap } from 'gsap';
 import { $, $$ } from './lib/QuerySelector.js';
+import { AudioPlayer } from './AudioPlayer.js';
 import { AudioAnalyser } from './AudioAnalyser.js';
 import { BPMDetector } from './BPMDetector.js';
 import { BPMDetectorViz } from './BPMDetectorViz.js';
-import { AudioPlayer } from './AudioPlayer.js';
 import { AudioAnalyserViz } from './AudioAnalyserViz.js';
 import { Wave } from './Wave.js';
 
-let audioAnalyser;
-let audioAnalyserViz;
-let audioPlayer;
 let bpmDetector;
-let bpmDetectorViz;
-let waveViz;
 let lastBeatIsLeft = false;
 
 function init() {
   $('#start-btn').onclick = start;
   $('#reset-btn').onclick = resetBPM;
-  $('#info-btn').onclick = showInfo;
-  waveViz = new Wave($('#sine-wave'));
-}
-function showInfo() {
-  toggleVisibility($('#info'));
-  $('#info-btn').classList.toggle('open');
-}
-
-function toggleVisibility(elem) {
-  elem.style.visibility =
-    elem.style.visibility === 'visible' ? 'hidden' : 'visible';
+  $('#info-btn').onclick = toggleInfo;
+  const waveViz = new Wave($('#sine-wave'));
 }
 
 async function start() {
   $$('.hidden-at-start').forEach((el) => {
-    el.style.visibility = 'visible';
+    show(el);
   });
-  $('#start-btn').style.visibility = 'hidden';
-  //CALL ONCE AFTER USER CLICK
-  audioPlayer = new AudioPlayer();
+  show($('#start-btn'), false);
+  //Init Audio after user click
+  const audioPlayer = new AudioPlayer();
   await audioPlayer.getMic();
-  audioAnalyser = new AudioAnalyser(audioPlayer.context);
+  const audioAnalyser = new AudioAnalyser(audioPlayer.context);
   audioAnalyser.connectSource(audioPlayer.source);
-  audioAnalyserViz = new AudioAnalyserViz(audioAnalyser, $('#aa-viz-holder'));
-  bpmDetector = new BPMDetector(audioAnalyser, 100, 200, 1);
-  bpmDetectorViz = new BPMDetectorViz(bpmDetector, $('#bpm-viz-holder'));
-
-  audioAnalyserViz.setBPMRange(
-    bpmDetector.minFreq,
-    bpmDetector.maxFreq,
-    bpmDetector.name
+  const audioAnalyserViz = new AudioAnalyserViz(
+    audioAnalyser,
+    $('#aa-viz-holder')
   );
+  bpmDetector = new BPMDetector(audioAnalyser, 100, 200, 1);
+  const bpmDetectorViz = new BPMDetectorViz(bpmDetector, $('#bpm-viz-holder'));
+
+  audioAnalyserViz.setBPMRange(bpmDetector.minFreq, bpmDetector.maxFreq);
 
   update();
-}
-
-function rationalBump(x, k) {
-  return 1.0 / (1.0 + k * x * x);
 }
 
 function update() {
@@ -64,30 +45,30 @@ function update() {
   $('#conf-meter-inner').style.width = `${bpmDetector.historicalConf * 100}%`;
 
   if (!bpmDetector.isConfident) {
-    $('#bpm-text').style.visibility = 'hidden';
-    $('#sine-wave').style.visibility = 'visible';
-    $('#sweeper').style.visibility = 'hidden';
-    $('#pulser').style.visibility = 'hidden';
+    show($('#bpm-text'), false);
+    show($('#sine-wave'));
+    show($('#sweeper'), false);
+    show($('#pulser'), false);
+    show($('#start-btn'), false);
     $('#conf-meter-inner').style.backgroundColor = '#aaa';
-    waveViz.update();
     return;
   }
 
-  $('#bpm-text').style.visibility = 'visible';
-  $('#bpm-text').innerHTML = bpmDetector.detectedBPM;
-  $('#sweeper').style.visibility = 'visible';
-  $('#pulser').style.visibility = 'visible';
+  //show BPM visualizer
+  show($('#bpm-text'));
+  show($('#sweeper'));
+  show($('#pulser'));
+  show($('#sine-wave'), false);
   gsap.set('#sweeper', { rotation: bpmDetector.getBeatTime(4) * 360 });
-  $('#sine-wave').style.visibility = 'hidden';
 
   //animate BPM text scale
+  $('#bpm-text').innerHTML = bpmDetector.detectedBPM;
   const val = rationalBump(bpmDetector.getBeatTime() - 0.5, 260);
   gsap.set('#bpm-text', { scale: 1 + val * 0.15 });
   $('#conf-meter-inner').style.backgroundColor = '#FFF';
 
   //animate stepper
   let beatIsLeft = bpmDetector.getBeatTime() < 0.5;
-
   if (beatIsLeft !== lastBeatIsLeft) {
     lastBeatIsLeft = beatIsLeft;
     $('#stepper-left').classList.toggle('on', beatIsLeft);
@@ -108,8 +89,26 @@ function update() {
   }
 }
 
+function toggleInfo() {
+  toggleVisibility($('#info'));
+  $('#info-btn').classList.toggle('open');
+}
+
+function show(elem, show = true) {
+  elem.style.visibility = show ? 'visible' : 'hidden';
+}
+
+function toggleVisibility(elem) {
+  elem.style.visibility =
+    elem.style.visibility === 'visible' ? 'hidden' : 'visible';
+}
+
 function resetBPM() {
   bpmDetector.resetBPM();
+}
+
+function rationalBump(x, k) {
+  return 1.0 / (1.0 + k * x * x);
 }
 
 init();

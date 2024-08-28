@@ -1,3 +1,8 @@
+/*
+
+  Detects BPM from audio data via an AudioAnalyser instance. 
+*/
+
 export class BPMDetector {
   constructor(audioAnalyser, options = {}) {
     const {
@@ -30,7 +35,6 @@ export class BPMDetector {
     this.historicalMinConf = historicalMinConf; //min historical confidence to show a result
 
     this.audioAnalyser = audioAnalyser;
-    this.maxRangeFreq = audioAnalyser.maxRangeFreq;
     this.volHistoryLen = this.peakWindowSize * this.peakWindowCount;
     this.intervalsCount = 0;
     this.peakCount = 0;
@@ -59,25 +63,13 @@ export class BPMDetector {
 
   getVolume() {
     //write current volume in the frequency range into volHistory as 0-1
-    const time = performance.now();
-    const startIndex = Math.round(
-      (this.minFreq / this.audioAnalyser.maxRangeFreq) *
-        (this.audioAnalyser.binCount - 1)
+    let volume = this.audioAnalyser.getVolumeInRange(
+      this.minFreq,
+      this.maxFreq
     );
-    const endIndex = Math.round(
-      (this.maxFreq / this.audioAnalyser.maxRangeFreq) *
-        (this.audioAnalyser.binCount - 1)
-    );
-    //average volume in range
-    let total = this.audioAnalyser.freqData
-      .slice(startIndex, endIndex + 1)
-      .reduce((acc, value) => acc + value, 0);
-    let volume = total / (endIndex - startIndex);
     volume *= this.gain;
-    volume /= 255; //convert to 0-1 range
-
     //put new volume on front of volHistory
-    this.volHistory.unshift({ volume: volume, time: time });
+    this.volHistory.unshift({ volume: volume, time: performance.now() });
     this.volHistory.pop();
   }
 
@@ -199,7 +191,6 @@ export class BPMDetector {
   resetBPMValues() {
     this.historicalConf = 0;
     this.isConfident = false;
-    this.bpmMS = 100000;
   }
 
   getMostCommonBPM() {

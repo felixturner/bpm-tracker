@@ -3,14 +3,12 @@
  Utility class to play an MP3 or load the mic
  Handles drag and drop MP3.
 
-
 */
 
 export class AudioPlayer {
   constructor() {
     this.context = new AudioContext();
     this.playing = false;
-
     this.gainNode = this.context.createGain();
     this.gainNode.connect(this.context.destination);
     this.isConnected = false;
@@ -21,8 +19,6 @@ export class AudioPlayer {
     this.disconnect();
     let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     this.source = this.context.createMediaStreamSource(stream);
-    //dont play mic input to avoid feedback
-    //this.source.connect(this.gainNode);
   }
 
   disconnect() {
@@ -33,7 +29,7 @@ export class AudioPlayer {
   }
 
   async loadMP3File(file) {
-    const url = await URL.createObjectURL(file);
+    const url = URL.createObjectURL(file);
     await this.loadMP3Url(url);
   }
 
@@ -52,17 +48,7 @@ export class AudioPlayer {
     this.isConnected = true;
   }
 
-  toggleMute() {
-    this.gainNode.gain.value = this.gainNode.gain.value === 0 ? 1 : 0;
-  }
-
   mute(doMute) {
     this.gainNode.gain.value = doMute ? 0 : 1;
-  }
-
-  toggle() {
-    //cant start / stop buffer streams....
-    // this.playing ? this.source.stop() : this.source.start();
-    // this.playing = !this.playing;
   }
 }

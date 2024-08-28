@@ -6,10 +6,7 @@
 
   publishes:
     freqData - length: fftSize/2. range: 0 - 255
-    waveData - length: fftSize. range: 0 - 255. 128 is no sound
-    volume - ave volume range: 0 - 1
-    bands[i].volume - ave volume in range: 0 - 1
-    TODO 
+    
     - cleanup log lookup like https://github.com/mattdesl/spectrum/
 
 */
@@ -17,39 +14,20 @@
 const maxVal = 255;
 
 export class AudioAnalyser {
-  constructor(context, fftSize = 4096) {
+  constructor(context, options = {}) {
     this.analyser = context.createAnalyser();
-    this.analyser.fftSize = fftSize;
-    // this.analyser.minDecibels = -120; //default: -100
-    // this.analyser.maxDecibels = 0; //default: -30
-    this.analyser.smoothingTimeConstant = 0; //faster response
-
+    this.analyser.fftSize = options.fftSize || 4096;
+    this.analyser.smoothingTimeConstant = options.smoothingTimeConstant || 0; // faster response
     //The frequencies are spread linearly from 0 to 1/2 of the sample rate.
     //For example, for 48000 sample rate, the last item of the array will represent the decibel value for 24000 Hz.
     this.maxRangeFreq = context.sampleRate / 2;
-
-    console.log('context.sampleRate', context.sampleRate);
-
-    this.binCount = this.analyser.frequencyBinCount; //fftSize / 2
+    this.binCount = this.analyser.frequencyBinCount;
 
     //OUTPUTS
     this.freqData = new Uint8Array(this.binCount);
-    this.waveData = new Uint8Array(fftSize); //fftSize
     this.volume = 0;
     this.logData = new Uint8Array(this.binCount);
-
-    console.log(
-      'AudioAnalyser binCount:',
-      this.binCount,
-      ' maxRangeFreq:',
-      this.maxRangeFreq,
-      this.analyser.smoothingTimeConstant
-    );
     this.isConnected = false;
-
-    this.lastTime = 0;
-    this.beatTime = 0;
-
     this.update = this.update.bind(this);
     this.update();
   }
@@ -61,13 +39,27 @@ export class AudioAnalyser {
     this.isConnected = true;
   }
 
-  getVolume() {
-    //returns 0-256
-    let value = 0;
-    for (let i = 0; i < this.freqData.length; i++) {
-      value += this.freqData[i];
-    }
-    return value / this.freqData.length / maxVal;
+  getBinIndex(freq) {
+    return Math.round((freq / this.maxRangeFreq) * (this.binCount - 1));
+  }
+
+  //get average volume in a frequency range as 0-1 value
+  getVolumeInRange(minFreq, maxFreq) {
+    const startIndex = this.getBinIndex(minFreq);
+    const endIndex = this.getBinIndex(maxFreq);
+    let total = this.freqData
+      .slice(startIndex, endIndex + 1)
+      .reduce((acc, value) => acc + value, 0);
+    let volume = total / (endIndex - startIndex);
+    volume /= 255; //convert to 0-1 range
+    return volume;
+  }
+
+  update() {
+    requestAnimationFrame(this.update);
+    if (!this.isConnected) return;
+    this.analyser.getByteFrequencyData(this.freqData);
+    this.calcLogArray();
   }
 
   //from https://stackoverflow.com/questions/9367732/plotting-logarithmic-graph-javascript
@@ -84,6 +76,10 @@ export class AudioAnalyser {
     return min * Math.pow(max / min, exp);
   }
 
+  log(n) {
+    return Math.log(n) / Math.log(2);
+  }
+
   getLogIndex(binIndex) {
     //return Math.round(this.toLog(binIndex, 1, this.binCount));
     return this.toLog(binIndex, 1, this.binCount - 1);
@@ -92,6 +88,7 @@ export class AudioAnalyser {
   calcLogArray() {
     for (let i = 0; i < this.binCount; i++) {
       let logIndex = this.getLogIndex(i);
+      //let logIndex = this.log(i);
 
       //single sample
       //logIndex = Math.round(logIndex);
@@ -107,21 +104,5 @@ export class AudioAnalyser {
 
       this.logData[i] = val;
     }
-  }
-
-  update() {
-    //console.log('AA ups');
-    let time = performance.now();
-    let delta = time - this.lastTime;
-    this.lastTime = time;
-    //console.log(time, delta);
-    requestAnimationFrame(this.update);
-    if (!this.isConnected) return;
-    //returns 0 - 256 range.
-    this.analyser.getByteFrequencyData(this.freqData);
-    //returns 0 - 256 range. 128 is middle
-    this.analyser.getByteTimeDomainData(this.waveData);
-    this.calcLogArray();
-    this.volume = this.getVolume();
   }
 }
