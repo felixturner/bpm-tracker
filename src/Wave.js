@@ -1,5 +1,7 @@
 /*
+
   Animated sine wave drawn to canvas
+  
 */
 
 let numPoints = 100;

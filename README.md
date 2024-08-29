@@ -18,9 +18,12 @@ Note: audio playing in other chrome tabs will not be picked up by Web Audio API.
 
 ![BPM Tracker Screenshot](/screenshot.png?raw=true)
 
-## Build Dev
+## Installation
 
 - `npm install`
+
+## Run Locally
+
 - `npm run dev`
 - Navigate to `http://127.0.0.1:8000/`
 - Play some music to see the BPM detection and visualization in action.
@@ -32,9 +35,8 @@ Note: audio playing in other chrome tabs will not be picked up by Web Audio API.
 
 ## Credits
 
-BPM detection technique is taken from this blog post: [Beat Detection Using JavaScript and the Web Audio API](http://joesul.li/van/beat-detection-using-web-audio/) This project adds realtime detection and visualization.
-
-This project is developed by Felix Turner. [airtight.cc](https://airtight.cc)
+- Developed by Felix Turner. [airtight.cc](https://airtight.cc)
+- BPM detection technique from this article: [Beat Detection Using JavaScript and the Web Audio API](http://joesul.li/van/beat-detection-using-web-audio/)
 
 ## License
 

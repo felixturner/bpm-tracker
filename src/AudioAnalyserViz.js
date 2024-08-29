@@ -1,7 +1,7 @@
 /*
 
- Draws logarithmic frequency data of an AudioAnalyser instance to canvas
- Additionally draws a band indicating a frequency range for BPM detection
+  Draws logarithmic frequency data of an AudioAnalyser instance to canvas
+  Additionally draws a band indicating a frequency range for BPM detection
 
 */
 

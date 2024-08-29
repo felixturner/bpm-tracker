@@ -1,6 +1,14 @@
 /*
-
+  
   Detects BPM from audio data via an AudioAnalyser instance. 
+
+  Publishes:
+  * detectedBPM: detected BPM
+  * getBeatTime(numBeats): 0-1 time within a number of beats
+  * isConfident: boolean if BPM is confident
+  * historicalConf: 0-1 confidence of detected BPM in time range
+  * bpmMS: duration of a half note in milliseconds
+  
 */
 
 export class BPMDetector {
@@ -105,7 +113,7 @@ export class BPMDetector {
     this.peaks.sort((a, b) => {
       return b.volume - a.volume;
     });
-    //take the loudest half of those...
+    //take the loudest half
     this.peaks = this.peaks.splice(0, this.peaks.length * 0.5);
     //resort in time order
     this.peaks.sort((a, b) => {
@@ -160,12 +168,6 @@ export class BPMDetector {
 
     // Sort intervals by count in descending order
     intervals.sort((a, b) => b.count - a.count);
-
-    // Calculate total count of intervals
-    const totalCount = intervals.reduce(
-      (accumulator, group) => accumulator + group.count,
-      0
-    );
 
     // Get the most common interval
     this.topInterval = intervals[0];

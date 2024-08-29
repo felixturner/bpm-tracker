@@ -1,3 +1,8 @@
+/*
+
+  Web app using BPMDetector to visualize BPM from microphone input
+
+*/
 import { gsap } from 'gsap';
 import { $, $$ } from './lib/QuerySelector.js';
 import { AudioPlayer } from './AudioPlayer.js';
@@ -19,10 +24,10 @@ function init() {
 
 async function start() {
   $$('.hidden-at-start').forEach((el) => {
-    show(el);
+    showEl(el);
   });
-  show($('#start-btn'), false);
-  //Init Audio after user click
+  showEl($('#start-btn'), false);
+  //Init audio after user click
   const audioPlayer = new AudioPlayer();
   await audioPlayer.getMic();
   const audioAnalyser = new AudioAnalyser(audioPlayer.context);
@@ -45,20 +50,13 @@ function update() {
   $('#conf-meter-inner').style.width = `${bpmDetector.historicalConf * 100}%`;
 
   if (!bpmDetector.isConfident) {
-    show($('#bpm-text'), false);
-    show($('#sine-wave'));
-    show($('#sweeper'), false);
-    show($('#pulser'), false);
-    show($('#start-btn'), false);
+    showBPMVisualizer(false);
     $('#conf-meter-inner').style.backgroundColor = '#aaa';
     return;
   }
 
   //show BPM visualizer
-  show($('#bpm-text'));
-  show($('#sweeper'));
-  show($('#pulser'));
-  show($('#sine-wave'), false);
+  showBPMVisualizer(true);
   gsap.set('#sweeper', { rotation: bpmDetector.getBeatTime(4) * 360 });
 
   //animate BPM text scale
@@ -89,12 +87,20 @@ function update() {
   }
 }
 
+// Toggle the visibility of the BPM visualizer elements
+function showBPMVisualizer(show) {
+  showEl($('#bpm-text'), show);
+  showEl($('#sweeper'), show);
+  showEl($('#pulser'), show);
+  showEl($('#sine-wave'), !show);
+}
+
 function toggleInfo() {
   toggleVisibility($('#info'));
   $('#info-btn').classList.toggle('open');
 }
 
-function show(elem, show = true) {
+function showEl(elem, show = true) {
   elem.style.visibility = show ? 'visible' : 'hidden';
 }
 

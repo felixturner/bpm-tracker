@@ -1,6 +1,6 @@
 /*
 
-Draws volume history and peaks of a BPMDetector instance
+  Draws volume history and peaks of a BPMDetector instance
 
 */
 

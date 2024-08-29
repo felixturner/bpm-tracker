@@ -2,6 +2,7 @@
 
   AudioAnalyser publishes frequency data and logarithmic frequency data from an AnalyserNode.
   Logarithmic frequency is a more human readable way to visualize the audio spectrum.
+  
 */
 
 export class AudioAnalyser {
@@ -52,15 +53,14 @@ export class AudioAnalyser {
 
   calcLogData() {
     for (let i = 0; i < this.binCount; i++) {
-      let index = this.logIndexToIndex(i);
+      const index = this.logIndexToIndex(i);
       //As the index will be fractional, we need to interpolate
-      let low = Math.floor(index);
-      let high = Math.ceil(index);
-      let lv = this.freqData[low];
-      let hv = this.freqData[high];
-      let w = (index - low) / (high - low);
-      let val = lv + (hv - lv) * w;
-      this.logData[i] = val;
+      const low = Math.floor(index);
+      const high = Math.ceil(index);
+      const lv = this.freqData[low];
+      const hv = this.freqData[high];
+      const w = (index - low) / (high - low);
+      this.logData[i] = lv + (hv - lv) * w;
     }
   }
 
