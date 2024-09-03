@@ -98,7 +98,7 @@ body {
 
 .bpm-circ {
   border-radius: 50%;
-  outline: 4px solid #999;
+  border: 4px solid #999;
   aspect-ratio: 1;
   height: 100%;
   margin: auto;
@@ -112,6 +112,7 @@ body {
   background-image: url('../res/pulser.svg');
   background-size: 100% 100%;
   z-index: -1;
+  border: none;
 }
 
 #sine-wave,
